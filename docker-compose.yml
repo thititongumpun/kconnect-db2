@@ -67,7 +67,6 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      # CONNECT_PLUGIN_PATH: /usr/share/java
 
   kafkacat:
     image: edenhill/kafkacat:1.5.0
@@ -81,18 +80,19 @@ services:
         apk add jq;
         while [ 1 -eq 1 ];do sleep 60;done
 
-  # postgres:
-  #   # *-----------------------------*
-  #   # To connect to the DB:
-  #   #   docker exec -it postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
-  #   # *-----------------------------*
-  #   image: postgres:11
-  #   container_name: postgres
-  #   environment:
-  #    - POSTGRES_USER=postgres
-  #    - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #    - ./cities.sql:/docker-entrypoint-initdb.d/cities.sql
+  postgres:
+    # *-----------------------------*
+    # To connect to the DB:
+    #   docker exec -it postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
+    # *-----------------------------*
+    image: postgres:11
+    container_name: postgres
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+    volumes:
+     - ./cities.sql:/docker-entrypoint-initdb.d/cities.sql
+
   db2:
     container_name: db2
     hostname: db2
