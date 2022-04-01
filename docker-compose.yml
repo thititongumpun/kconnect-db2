@@ -25,8 +25,14 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.2.1
@@ -80,18 +86,40 @@ services:
         apk add jq;
         while [ 1 -eq 1 ];do sleep 60;done
 
-  postgres:
-    # *-----------------------------*
-    # To connect to the DB:
-    #   docker exec -it postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
-    # *-----------------------------*
-    image: postgres:11
-    container_name: postgres
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:6.2.1
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - broker
+      - schema-registry
+      - connect
+    ports:
+      - "9021:9021"
     environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=postgres
-    volumes:
-     - ./cities.sql:/docker-entrypoint-initdb.d/cities.sql
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:9092'
+      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'connect:8083'
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONTROL_CENTER_SERVICE_HEALTHCHECK_INTERVAL_SEC: 1
+      CONFLUENT_METADATA_REQUEST_TIMEOUT_MS: 18000
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
+  # postgres:
+  #   # *-----------------------------*
+  #   # To connect to the DB:
+  #   #   docker exec -it postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
+  #   # *-----------------------------*
+  #   image: postgres:11
+  #   container_name: postgres
+  #   environment:
+  #    - POSTGRES_USER=postgres
+  #    - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #    - ./cities.sql:/docker-entrypoint-initdb.d/cities.sql
 
   db2:
     container_name: db2

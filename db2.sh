@@ -1,8 +1,8 @@
-curl -i -X PUT http://localhost:8083/connectors/jdbc_source_db2/config \
+curl -i -X PUT http://localhost:8083/connectors/db2_source/config \
      -H "Content-Type: application/json" \
      -d '{
             "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-            "connection.url": "jdbc:db2://db2:50000/TESTDB",
+            "connection.url": "jdbc:db2://db2:50000/books",
             "connection.user": "db2inst1",
             "connection.password": "password",
             "mode":"bulk",
