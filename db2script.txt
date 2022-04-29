@@ -1,0 +1,4 @@
+db2 connect to books
+db2 -stvf create.sql
+db2 -stvf data.sql
+db2 -stvf update.sql

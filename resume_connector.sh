@@ -1,0 +1,1 @@
+curl -i -X PUT http://localhost:8083/connectors/db2_source/resume
